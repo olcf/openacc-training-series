@@ -1,2 +1,2 @@
 # OpenACC Training Series
-OpenACC Training Resources
+OpenACC Training Resources provided by OpenACC.org.
