@@ -3,11 +3,25 @@
 In this lab you will learn the basics of using OpenACC to parallelize a simple application to run on multicore CPUs and GPUs. This lab is intended for C/C++ programmers. If you prefer to use Fortran, click [this link.](../Fortran/README.md)
 
 ---
+To get started on Summit, we have to set up our environment by loading the modules we will need:
+
+```bash
+$ module load cuda
+$ module load pgi
+```
+
+Next, let's create an alias we can use to launch jobs on summit. We need to use the `bsub` command to request a node and the `jsrun` command to launch our jobs on the nodes that we are given.
+
+```bash
+$ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c1 -g1'
+```
+
+---
 Let's execute the cell below to display information about the GPUs running on the server by running the `pgaccelinfo` command, which ships with the PGI compiler that we will be using. To do this, execute the cell block below by giving it focus (clicking on it with your mouse), and hitting Ctrl-Enter, or pressing the play button in the toolbar above.  If all goes well, you should see some output returned below the grey cell.
 
 
 ```bash
-$ pgaccelinfo
+$ lsfrun pgaccelinfo
 ```
 
 The output of the above command will vary according to which GPUs you have in your system. For example, if you are running the lab on a machine with an NVIDIA TITAN Xp GPU, you might would see the following:
@@ -171,7 +185,7 @@ For this lab we are using the PGI compiler to compiler our code. You will not ne
 
 
 ```bash
-$ pgcc -fast -o laplace jacobi.c laplace2d.c && echo "Compilation Successful!" && ./laplace
+$ pgcc -fast -o laplace jacobi.c laplace2d.c && echo "Compilation Successful!" && lsfrun ./laplace
 ```
 
 ### Expected Output
@@ -279,7 +293,7 @@ Go ahead and build and run the code, noting both the error value at the 900th it
 
 
 ```bash
-$ pgcc -fast -ta=multicore -Minfo=accel -o laplace jacobi.c laplace2d.c && echo "Compilation Successful!" && ./laplace
+$ pgcc -fast -ta=multicore -Minfo=accel -o laplace jacobi.c laplace2d.c && echo "Compilation Successful!" && lsfrun ./laplace
 ```
 
 Here's the ouput you should see after running the above cell. Your total runtime may be slightly different, but it should be close. If you find yourself stuck on this part, you can take a look at [our solution](solutions/laplace2d.parallel.c). If you see a warning like `48, Accelerator restriction: size of the GPU copy of Anew,A is unknown`, you can safely ignore it.
@@ -322,7 +336,7 @@ Notice above that I'm using something called *managed memory* for this task. Sin
 
 
 ```bash
-$ pgcc -fast -ta=tesla:managed -Minfo=accel -o laplace jacobi.c laplace2d.c && echo "Compilation Successful!" && ./laplace
+$ pgcc -fast -ta=tesla:managed -Minfo=accel -o laplace jacobi.c laplace2d.c && echo "Compilation Successful!" && lsfrun ./laplace
 ```
 
 Wow! That ran a lot faster! This demonstrates the power of using OpenACC to accelerate an application. I made very minimal code changes and could run my code on multicore CPUs and GPUs by only changing my compiler option. Very cool!
