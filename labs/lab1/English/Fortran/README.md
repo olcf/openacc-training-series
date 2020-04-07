@@ -3,6 +3,20 @@
 In this lab you will learn the basics of using OpenACC to parallelize a simple application to run on multicore CPUs and GPUs. This lab is intended for Fortran programmers. If you prefer to use C/C++, click [this link.](../C/README.md)
 
 ---
+To get started on Summit, we have to set up our environment by loading the modules we will need:
+
+```bash
+$ module load cuda
+$ module load pgi
+```
+
+Next, let's create an alias we can use to launch jobs on summit. We need to use the `bsub` command to request a node and the `jsrun` command to launch our jobs on the nodes that we are given.
+
+```bash
+$ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c10 -g1'
+```
+
+---
 Let's execute the cell below to display information about the GPUs running on the server by running the `pgaccelinfo` command, which ships with the PGI compiler that we will be using. To do this, execute the cell block below by giving it focus (clicking on it with your mouse), and hitting Ctrl-Enter, or pressing the play button in the toolbar above.  If all goes well, you should see some output returned below the grey cell.
 
 
@@ -184,7 +198,7 @@ For this lab we are using the PGI compiler to compiler our code. You will not ne
 
 
 ```bash
-$ pgfortran -fast -o laplace laplace2d.f90 jacobi.f90 && echo "Compilation Successful!" && ./laplace
+$ pgfortran -fast -o laplace laplace2d.f90 jacobi.f90 && echo "Compilation Successful" && ./laplace
 ```
 
 ### Expected Output
@@ -286,7 +300,7 @@ Go ahead and build and run the code, noting both the error value at the 900th it
 
 
 ```bash
-$ pgfortran -fast -ta=multicore -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && echo "Compilation Successful!" && ./laplace
+$ pgfortran -fast -ta=multicore -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && echo "Compilation Successful" && ./laplace
 ```
 
 Here's the ouput you should see after running the above cell. Your total runtime may be slightly different, but it should be close. If you find yourself stuck on this part, you can take a look at [our solution](solutions/laplace2d.parallel.f90). 
@@ -327,7 +341,7 @@ Notice above that I'm using something called *managed memory* for this task. Sin
 
 
 ```bash
-$ pgfortran -fast -ta=tesla:managed -Minfo=accel -o laplace  laplace2d.f90 jacobi.f90 && echo "Compilation Successful!" && ./laplace
+$ pgfortran -fast -ta=tesla:managed -Minfo=accel -o laplace  laplace2d.f90 jacobi.f90 && echo "Compilation Successful" && ./laplace
 ```
 
 Wow! That ran a lot faster! This demonstrates the power of using OpenACC to accelerate an application. I made very minimal code changes and could run my code on multicore CPUs and GPUs by only changing my compiler option. Very cool!
