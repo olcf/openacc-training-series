@@ -1,9 +1,10 @@
-Application Profiling with PGProf Lab
+Module 1: Introduction to OpenACC Lab
 =====================================
 
-This lab is meant to accompany Module 2 of the OpenACC.org teaching materials.
-The purpose of this lab is to introduce students to application profiling using
-the PGProf profiler. Lab instructions and source code is available for C/C++
+This lab is meant to accompany Module 1 of the OpenACC.org online course.
+The purpose of this lab is to introduce users OpenACC using the parallel 
+directive in conjunction with managed memory. Lab instructions and source 
+code is available for C/C++
 and Fortran.
 
 Please see the following files to begin the lab:
@@ -13,4 +14,4 @@ Please see the following files to begin the lab:
 
 Additional Resources
 --------------------
-* [Associated Slides](#)
+* [Associated Slides](https://www.olcf.ornl.gov/wp-content/uploads/2020/04/OpenACC-Course-2020-Module-1.pdf)
