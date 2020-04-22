@@ -17,7 +17,7 @@ $ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c10 -g
 ```
 
 ---
-Let's execute the cell below to display information about the GPUs running on the server by running the `pgaccelinfo` command, which ships with the PGI compiler that we will be using. To do this, execute the cell block below by giving it focus (clicking on it with your mouse), and hitting Ctrl-Enter, or pressing the play button in the toolbar above.  If all goes well, you should see some output returned below the grey cell.
+Let's execute the cell below to display information about the GPUs running on the server by running the `pgaccelinfo` command, which ships with the PGI compiler that we will be using. 
 
 
 ```bash
