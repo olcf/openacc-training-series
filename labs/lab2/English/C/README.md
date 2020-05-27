@@ -5,6 +5,20 @@ This version of the lab is intended for C/C++ programmers. The Fortran version o
 You will receive a warning five minutes before the lab instance shuts down. Remember to save your work! If you are about to run out of time, please see the [Post-Lab](#Post-Lab-Summary) section for saving this lab to view offline later.
 
 ---
+To get started on Summit, we have to set up our environment by loading the modules we will need:
+
+```bash
+$ module load cuda
+$ module load pgi
+```
+
+Next, let's create an alias we can use to launch jobs on summit. We need to use the `bsub` command to request a node and the `jsrun` command to launch our jobs on the nodes that we are given.
+
+```bash
+$ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c10 -g1'
+```
+
+---
 Let's execute the cell below to display information about the GPUs running on the server. To do this, execute the cell block below by giving it focus (clicking on it with your mouse), and hitting Ctrl-Enter, or pressing the play button in the toolbar above.  If all goes well, you should see some output returned below the grey cell.
 
 
