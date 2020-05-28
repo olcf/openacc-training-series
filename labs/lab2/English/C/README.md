@@ -61,7 +61,7 @@ If you would like a refresher on the code files that we are working on, you may 
 
 ## Building Without Managed Memory
 
-Since we ultimately don't want to use CUDA Managed Memory, because it's less portable and often less performant than moving the data explicitly,, let's removed the managed option from our compiler options. Try building and running the code now. What happens?
+Since we ultimately don't want to use CUDA Managed Memory, because it's less portable and often less performant than moving the data explicitly, let's remove the managed option from our compiler options. Try building and running the code now. What happens?
 
 
 ```bash
