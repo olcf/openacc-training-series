@@ -20,7 +20,7 @@ $ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c10 -g
 Let's execute the cell below to display information about the GPUs running on the server.
 
 ```bash
-$ pgaccelinfo
+$ lsfrun pgaccelinfo
 ```
 
 ---
@@ -49,7 +49,7 @@ In the [previous lab](../../../lab1/English/C/README.md), we added OpenACC loop 
 
 
 ```bash
-$ pgcc -fast -ta=tesla:managed -Minfo=accel -o laplace_managed jacobi.c laplace2d.c && ./laplace_managed
+$ pgcc -fast -ta=tesla:managed -Minfo=accel -o laplace_managed jacobi.c laplace2d.c && lsfrun ./laplace_managed
 ```
 
 ### Optional: Analyze the Code
@@ -65,7 +65,7 @@ Since we ultimately don't want to use CUDA Managed Memory, because it's less por
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun ./laplace
 ```
 
 Uh-oh, this time our code failed to build. Let's take a look at the compiler output to understand why:
@@ -217,14 +217,14 @@ In order to build our example code without CUDA managed memory we need to give t
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun ./laplace
 ```
 
 Well, the good news is that it should have built correctly and run. If it didn't, check your data clauses carefully. The bad news is that now it runs a whole lot slower than it did before. Let's try to figure out why. The PGI compiler provides your executable with built-in timers, so let's start by enabling them and seeing what it shows. You can enable these timers by setting the environment variable `PGI_ACC_TIME=1`. Run the cell below to get the program output with the built-in profiler enabled.
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && PGI_ACC_TIME=1 ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun PGI_ACC_TIME=1 ./laplace
 ```
 
 Your output should look something like what you see below.
@@ -350,7 +350,7 @@ Then, run the following script to check you solution. You code should run just a
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun ./laplace
 ```
 
 Did your runtime go down? It should have but the answer should still match the previous runs. Let's take a look at the profiler now.
@@ -411,7 +411,7 @@ Let's run this code (on a very small data set, so that we don't overload the con
 
 
 ```bash
-$ cd update && pgcc -fast -ta=tesla -Minfo=accel -o laplace_no_update jacobi.c laplace2d.c && ./laplace_no_update 10 10 && cd -
+$ cd update && pgcc -fast -ta=tesla -Minfo=accel -o laplace_no_update jacobi.c laplace2d.c && lsfrun ./laplace_no_update 10 10 && cd -
 ```
 
 We can see that the array is not changing. This is because the host copy of `A` is not being *updated* between loop iterations. Let's add the update directive, and see how the output changes.
@@ -448,7 +448,7 @@ We can see that the array is not changing. This is because the host copy of `A` 
 
 
 ```bash
-$ cd update/solution && pgcc -fast -ta=tesla -Minfo=accel -o laplace_update jacobi.c laplace2d.c && ./laplace_update 10 10 && cd -
+$ cd update/solution && pgcc -fast -ta=tesla -Minfo=accel -o laplace_update jacobi.c laplace2d.c && lsfrun ./laplace_update 10 10 && cd -
 ```
 
 Although you weren't required to add an `update` directive to this example code, except in the contrived example above, it's an extremely important directive for real applications because it allows you to do I/O or communication necessary for your code to execute without having to pay the cost of allocating and decallocating arrays on the device each time you do so.
