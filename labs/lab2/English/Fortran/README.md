@@ -20,7 +20,7 @@ $ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c10 -g
 Let's execute the cell below to display information about the GPUs running on the server.
 
 ```bash
-$ pgaccelinfo
+$ lsfrun pgaccelinfo
 ```
 
 ---
@@ -49,7 +49,7 @@ In the [previous lab](../../../lab1/English/Fortran/README.md), we added OpenACC
 
 
 ```bash
-$ pgfortran -fast -ta=tesla,managed -Minfo=accel -o laplace_managed laplace2d.f90 jacobi.f90 && ./laplace_managed
+$ pgfortran -fast -ta=tesla,managed -Minfo=accel -o laplace_managed laplace2d.f90 jacobi.f90 && lsfrun ./laplace_managed
 ```
 
 ### Optional: Analyze the Code
@@ -65,7 +65,7 @@ Since we ultimately don't want to use CUDA Managed Memory, because it's less por
 
 
 ```bash
-$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && ./laplace
+$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && lsfrun ./laplace
 ```
 
 OK, so we're able to run, but we're running very slowly. We'll address that in just a moment, but first we should address an issue that you might encounter if you ever try this same exercise in C/C++. Because Fortran arrays contain all of the necessary size and shape information for the compiler to moved them to and from the device, this step works. Had you been programming in C/C++, however, the compiler would lack the information to move the arrays. Instead, you would have seen the following:
@@ -216,14 +216,14 @@ In order to build our example code without CUDA managed memory we need to give t
 
 
 ```bash
-$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && ./laplace
+$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && lsfrun ./laplace
 ```
 
 Well, the good news is that it should have built correctly and run. If it didn't, check your data clauses carefully. The bad news is that now it runs a whole lot slower than it did before. Let's try to figure out why. The PGI compiler provides your executable with built-in timers, so let's start by enabling them and seeing what it shows. You can enable these timers by setting the environment variable `PGI_ACC_TIME=1`. Run the cell below to get the program output with the built-in profiler enabled.
 
 
 ```bash
-$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && PGI_ACC_TIME=1 ./laplace
+$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && lsfrun PGI_ACC_TIME=1 ./laplace
 ```
 
 Your output should look something like what you see below.
@@ -345,7 +345,7 @@ Then, run the following script to check you solution. You code should run just a
 
 
 ```bash
-$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && ./laplace
+$ pgfortran -fast -ta=tesla -Minfo=accel -o laplace laplace2d.f90 jacobi.f90 && lsfrun ./laplace
 ```
 
 Did your runtime go down? It should have but the answer should still match the previous runs. Let's take a look at the profiler now.
@@ -413,7 +413,7 @@ integer, parameter :: n=10, m=10, iter_max=1000
 
 
 ```bash
-$ cd update && pgfortran -fast -ta=tesla -Minfo=accel -o laplace_no_update laplace2d.f90 jacobi.f90 && ./laplace_no_update ; cd -
+$ cd update && pgfortran -fast -ta=tesla -Minfo=accel -o laplace_no_update laplace2d.f90 jacobi.f90 && lsfrun ./laplace_no_update && cd -
 ```
 
 We can see that the array is not changing. This is because the host copy of `A` is not being **updated** between loop iterations. Let's add the update directive, and see how the output changes.
@@ -445,7 +445,7 @@ end do
 
 
 ```bash
-$ cd update/solution && pgfortran -fast -ta=tesla -Minfo=accel -o laplace_update laplace2d.f90 jacobi.f90 && ./laplace_update
+$ cd update/solution && pgfortran -fast -ta=tesla -Minfo=accel -o laplace_update laplace2d.f90 jacobi.f90 && lsfrun ./laplace_update && cd -
 ```
 
 Although you weren't required to add an `update` directive to this example code, except in the contrived example above, it's an extremely important directive for real applications because it allows you to do I/O or communication necessary for your code to execute without having to pay the cost of allocating and decallocating arrays on the device each time you do so.
