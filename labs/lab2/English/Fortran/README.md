@@ -2,8 +2,6 @@
 
 This version of the lab is intended for Fortran programmers. The C/C++ version of this lab is available [here](../C/README.md).
 
-You will receive a warning five minutes before the lab instance shuts down. Remember to save your work! If you are about to run out of time, please see the [Post-Lab](#Post-Lab-Summary) section for saving this lab to view offline later.
-
 ---
 To get started on Summit, we have to set up our environment by loading the modules we will need:
 
