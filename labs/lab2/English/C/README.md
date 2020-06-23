@@ -2,14 +2,25 @@
 
 This version of the lab is intended for C/C++ programmers. The Fortran version of this lab is available [here](../Fortran/README.md).
 
-You will receive a warning five minutes before the lab instance shuts down. Remember to save your work! If you are about to run out of time, please see the [Post-Lab](#Post-Lab-Summary) section for saving this lab to view offline later.
-
 ---
-Let's execute the cell below to display information about the GPUs running on the server. To do this, execute the cell block below by giving it focus (clicking on it with your mouse), and hitting Ctrl-Enter, or pressing the play button in the toolbar above.  If all goes well, you should see some output returned below the grey cell.
-
+To get started on Summit, we have to set up our environment by loading the modules we will need:
 
 ```bash
-$ pgaccelinfo
+$ module load cuda
+$ module load pgi
+```
+
+Next, let's create an alias we can use to launch jobs on summit. We need to use the `bsub` command to request a node and the `jsrun` command to launch our jobs on the nodes that we are given.
+
+```bash
+$ alias lsfrun='bsub -W 5 -nnodes 1 -P <allocation_ID> -Is jsrun -n1 -a1 -c10 -g1'
+```
+
+---
+Let's execute the cell below to display information about the GPUs running on the server.
+
+```bash
+$ lsfrun pgaccelinfo
 ```
 
 ---
@@ -38,7 +49,7 @@ In the [previous lab](../../../lab1/English/C/README.md), we added OpenACC loop 
 
 
 ```bash
-$ pgcc -fast -ta=tesla:managed -Minfo=accel -o laplace_managed jacobi.c laplace2d.c && ./laplace_managed
+$ pgcc -fast -ta=tesla:managed -Minfo=accel -o laplace_managed jacobi.c laplace2d.c && lsfrun ./laplace_managed
 ```
 
 ### Optional: Analyze the Code
@@ -50,11 +61,11 @@ If you would like a refresher on the code files that we are working on, you may 
 
 ## Building Without Managed Memory
 
-Since we ultimately don't want to use CUDA Managed Memory, because it's less portable and often less performant than moving the data explicitly,, let's removed the managed option from our compiler options. Try building and running the code now. What happens?
+Since we ultimately don't want to use CUDA Managed Memory, because it's less portable and often less performant than moving the data explicitly, let's remove the managed option from our compiler options. Try building and running the code now. What happens?
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun ./laplace
 ```
 
 Uh-oh, this time our code failed to build. Let's take a look at the compiler output to understand why:
@@ -206,14 +217,14 @@ In order to build our example code without CUDA managed memory we need to give t
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun ./laplace
 ```
 
 Well, the good news is that it should have built correctly and run. If it didn't, check your data clauses carefully. The bad news is that now it runs a whole lot slower than it did before. Let's try to figure out why. The PGI compiler provides your executable with built-in timers, so let's start by enabling them and seeing what it shows. You can enable these timers by setting the environment variable `PGI_ACC_TIME=1`. Run the cell below to get the program output with the built-in profiler enabled.
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && PGI_ACC_TIME=1 ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun PGI_ACC_TIME=1 ./laplace
 ```
 
 Your output should look something like what you see below.
@@ -339,7 +350,7 @@ Then, run the following script to check you solution. You code should run just a
 
 
 ```bash
-$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && ./laplace
+$ pgcc -fast -ta=tesla -Minfo=accel -o laplace jacobi.c laplace2d.c && lsfrun ./laplace
 ```
 
 Did your runtime go down? It should have but the answer should still match the previous runs. Let's take a look at the profiler now.
@@ -400,7 +411,7 @@ Let's run this code (on a very small data set, so that we don't overload the con
 
 
 ```bash
-$ cd update && pgcc -fast -ta=tesla -Minfo=accel -o laplace_no_update jacobi.c laplace2d.c && ./laplace_no_update 10 10 && cd -
+$ cd update && pgcc -fast -ta=tesla -Minfo=accel -o laplace_no_update jacobi.c laplace2d.c && lsfrun ./laplace_no_update 10 10 && cd -
 ```
 
 We can see that the array is not changing. This is because the host copy of `A` is not being *updated* between loop iterations. Let's add the update directive, and see how the output changes.
@@ -437,7 +448,7 @@ We can see that the array is not changing. This is because the host copy of `A` 
 
 
 ```bash
-$ cd update/solution && pgcc -fast -ta=tesla -Minfo=accel -o laplace_update jacobi.c laplace2d.c && ./laplace_update 10 10 && cd -
+$ cd update/solution && pgcc -fast -ta=tesla -Minfo=accel -o laplace_update jacobi.c laplace2d.c && lsfrun ./laplace_update 10 10 && cd -
 ```
 
 Although you weren't required to add an `update` directive to this example code, except in the contrived example above, it's an extremely important directive for real applications because it allows you to do I/O or communication necessary for your code to execute without having to pay the cost of allocating and decallocating arrays on the device each time you do so.
